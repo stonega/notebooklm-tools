@@ -1,48 +1,45 @@
 {
-	"$schema": "https://biomejs.dev/schemas/latest/schema.json",
-	"files": {
-		"ignore": [
-			"node_modules/**/*",
-			".next",
-			".react-router/**/*",
-			"generated/**/*",
-			"babel.config.js",
-			"android/**/*",
-			"ios/**/*",
-			".source/**/*",
-			"build/**/*",
-			"dist/**/*"
-		]
+	"$schema": "https://biomejs.dev/schemas/2.3.3/schema.json",
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true
 	},
-	"organizeImports": {
-		"enabled": true
+	"files": {
+		"ignoreUnknown": false
+	},
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
+		}
 	},
 	"formatter": {
 		"enabled": true,
-		"indentStyle": "tab",
-		"lineWidth": 120
+		"indentStyle": "tab"
 	},
 	"linter": {
 		"enabled": true,
 		"rules": {
 			"recommended": true,
-			"suspicious": {
-				"noExplicitAny": "off"
+			"correctness": {
+				"noEmptyPattern": "warn"
 			},
-			"performance": {
-				"noDelete": "off"
-			},
-			"style": {
-				"noUnusedTemplateLiteral": "warn"
+			"a11y": {
+				"noSvgWithoutTitle": "warn"
 			}
 		}
 	},
 	"javascript": {
 		"formatter": {
-			"semicolons": "asNeeded",
-			"quoteStyle": "single",
-			"jsxQuoteStyle": "single"
-		},
-		"jsxRuntime": "transparent"
+			"quoteStyle": "double"
+		}
+	},
+	"assist": {
+		"enabled": true,
+		"actions": {
+			"source": {
+				"organizeImports": "on"
+			}
+		}
 	}
 }
