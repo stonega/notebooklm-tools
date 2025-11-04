@@ -1,0 +1,41 @@
+---
+description: Animation guide for frontend project.
+globs: 
+alwaysApply: false
+---
+# Animations Guidelines
+ 
+Use `motion/react` for animations.
+
+## Keep your animations fast
+ 
+- Default to use `spring` for most animations.
+- Animations should never be longer than 1s (unless it's illustrative), most of them should be around 0.2s to 0.3s.
+ 
+ 
+## Hover transitions
+ 
+- Use the built-in CSS `ease` with a duration of `200ms` for simple hover transitions like `color`, `background-color`,`opacity`.
+- Fall back to easing rules for more complex hover transitions.
+- Disable hover transitions on touch devices with the `@media (hover: hover) and (pointer: fine)` media query.
+ 
+## Accessibility
+ 
+- If `transform` is used in the animation, disable it in the `prefers-reduced-motion` media query.
+ 
+## Origin-aware animations
+ 
+- Elements should animate from the trigger. If you open a dropdown or a popover it should animate from the button. Change `transform-origin` according to the trigger position.
+ 
+## Performance
+ 
+- Stick to opacity and transforms when possible. Example: Animate using `transform` instead of `top`, `left`, etc. when trying to move an element.
+- Do not animate drag gestures using CSS variables.
+- Do not animate blur values higher than 20px.
+- Use `will-change` to optimize your animation, but use it only for: `transform`, `opacity`, `clipPath`, `filter`.
+- When using Motion/Framer Motion use `transform` instead of `x` or `y` if you need animations to be hardware accelerated.
+ 
+## Spring animations
+ 
+- Default to spring animations when using Framer Motion.
+- Avoid using bouncy spring animations unless you are working with drag gestures.

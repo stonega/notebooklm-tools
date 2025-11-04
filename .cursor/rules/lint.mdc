@@ -1,0 +1,8 @@
+---
+alwaysApply: true
+---
+Provide an explicit type prop for the button element.biomelint/a11y/useButtonType
+Alternative text title element cannot be emptybiomelint/a11y/noSvgWithoutTitle
+Prefer for...of instead of forEach.biomelint/complexity/noForEach
+Alternative text title element cannot be empty
+
