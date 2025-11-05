@@ -8,7 +8,6 @@ import { useFetcher } from "react-router";
 import Parser, { type Item, type Output as RssFeed } from "rss-parser";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import { WhyNotebookLMSources } from "../components/WhyNotebookLMSources";
 import type { ActionData, FeedEntry } from "../lib/types";
 import type { Route } from "./+types/hackernews";
 
@@ -343,9 +342,6 @@ export default function HackerNews() {
 						</div>
 					</fetcher.Form>
 
-					{data ? null : (
-						<WhyNotebookLMSources keepCurrentDescription="Run the builder periodically to capture new front page stories and keep your NotebookLM sources updated." />
-					)}
 				</section>
 
 				{data ? (

@@ -6,7 +6,6 @@ import { useFetcher } from "react-router";
 import Parser, { type Item, type Output as RssFeed } from "rss-parser";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import { WhyNotebookLMSources } from "../components/WhyNotebookLMSources";
 import type { ActionData, FeedEntry } from "../lib/types";
 import type { Route } from "./+types/home";
 
@@ -379,9 +378,6 @@ export default function Home() {
 						</div>
 					</fetcher.Form>
 
-					{data ? null : (
-						<WhyNotebookLMSources keepCurrentDescription="Run the converter whenever a feed updates and re-import to keep NotebookLM fresh." />
-					)}
 				</section>
 
 				{data ? (
@@ -499,20 +495,6 @@ export default function Home() {
 				) : null}
 			</div>
 		</main>
-	);
-}
-function FeaturePill({
-	icon,
-	children,
-}: {
-	icon: ReactNode;
-	children: ReactNode;
-}) {
-	return (
-		<span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/40 px-3 py-1 text-xs font-medium text-slate-200">
-			{icon}
-			{children}
-		</span>
 	);
 }
 
