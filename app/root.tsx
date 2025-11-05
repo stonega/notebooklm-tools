@@ -88,7 +88,7 @@ function Header() {
 				</div>
 				<div className="flex items-center gap-4">
 					<a
-						href="https://github.com/stone/notebooklm-tools"
+						href="https://github.com/stonega/notebooklm-tools"
 						target="_blank"
 						rel="noopener noreferrer"
 						className="text-muted-foreground hover:text-foreground"
