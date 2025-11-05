@@ -1,6 +1,6 @@
 import { convert } from "html-to-text";
 import JSZip from "jszip";
-import { BookOpen, Download, Loader2, Shield, Sparkles } from "lucide-react";
+import { Download, Loader2, Sparkles } from "lucide-react";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import Parser, { type Item, type Output as RssFeed } from "rss-parser";
