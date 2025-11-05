@@ -1,24 +1,26 @@
+import { Readability } from "@mozilla/readability";
 import { convert } from "html-to-text";
+import { JSDOM } from "jsdom";
 import JSZip from "jszip";
-import { BookOpen, Download, Loader2, Shield, Sparkles } from "lucide-react";
-import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { BookOpen, Download, Loader2, Sparkles } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import Parser, { type Item, type Output as RssFeed } from "rss-parser";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { WhyNotebookLMSources } from "../components/WhyNotebookLMSources";
 import type { ActionData, FeedEntry } from "../lib/types";
-import type { Route } from "./+types/home";
+import type { Route } from "./+types/hackernews";
 
-const SAMPLE_FEED = "https://hnrss.org/frontpage";
+const HACKERNEWS_FEED = "https://hnrss.org/frontpage";
 
 export function meta(_args: Route.MetaArgs) {
 	return [
-		{ title: "RSS → NotebookLM Source Builder" },
+		{ title: "Hacker News → NotebookLM Source Builder" },
 		{
 			name: "description",
 			content:
-				"Transform any RSS feed into a ready-to-import NotebookLM source bundle with a single click.",
+				"Transform Hacker News top stories into a ready-to-import NotebookLM source bundle with a single click.",
 		},
 	];
 }
@@ -33,30 +35,19 @@ type RssItem = Item & {
 
 export async function action({ request }: Route.ActionArgs) {
 	const formData = await request.formData();
-	const feedUrlRaw = formData.get("feedUrl");
-	const limitRaw = formData.get("limit");
-
-	if (typeof feedUrlRaw !== "string" || feedUrlRaw.trim().length === 0) {
-		return new Response(
-			JSON.stringify({ ok: false, error: "Please enter an RSS feed URL." }),
-			{
-				status: 400,
-				headers: { "Content-Type": "application/json" },
-			},
-		);
-	}
+	const limitRaw = formData.get("storyCount");
 
 	let feedUrl: URL;
 	try {
-		feedUrl = new URL(feedUrlRaw.trim());
+		feedUrl = new URL(HACKERNEWS_FEED);
 	} catch {
 		return new Response(
 			JSON.stringify({
 				ok: false,
-				error: "That doesn’t look like a valid URL.",
+				error: "The Hacker News feed URL seems to be invalid.",
 			}),
 			{
-				status: 422,
+				status: 500,
 				headers: { "Content-Type": "application/json" },
 			},
 		);
@@ -70,7 +61,7 @@ export async function action({ request }: Route.ActionArgs) {
 		? Math.min(Math.max(parsedLimit, 1), MAX_LIMIT)
 		: 15;
 
-	const response = await fetch(feedUrl, {
+	const response = await fetch(HACKERNEWS_FEED, {
 		headers: {
 			"User-Agent":
 				"NotebookLM-Source-Converter/1.0 (+https://notebooklm.google.com)",
@@ -155,15 +146,18 @@ export async function action({ request }: Route.ActionArgs) {
 			preserveNewlines: true,
 		}).trim();
 
+		const articleContent = await fetchArticleContent(url);
+
 		entries.push({
 			id: createEntryId(index + 1, title),
 			title,
 			url,
 			publishedAt: item.isoDate ?? item.pubDate ?? null,
 			textContent:
-				textContent.length > 0
+				articleContent ??
+				(textContent.length > 0
 					? textContent
-					: "(No body content provided by the feed)",
+					: "(No body content provided by the feed)"),
 		});
 	}
 
@@ -201,10 +195,9 @@ export async function action({ request }: Route.ActionArgs) {
 	);
 }
 
-export default function Home() {
+export default function HackerNews() {
 	const fetcher = useFetcher<ActionData>();
-	const [feedUrl, setFeedUrl] = useState("");
-	const [limit, setLimit] = useState("15");
+	const [storyCount, setStoryCount] = useState("15");
 	const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
 	const downloadUrlRef = useRef<string | null>(null);
 
@@ -261,7 +254,7 @@ export default function Home() {
 		if (errorMessage) {
 			return "We ran into an issue. See the message below.";
 		}
-		return "Paste a feed URL and we’ll handle the rest.";
+		return "Select how many stories you want and we’ll handle the rest.";
 	}, [errorMessage, isSubmitting, successPayload]);
 
 	return (
@@ -270,15 +263,15 @@ export default function Home() {
 				<header className="flex flex-col gap-6 rounded-sm border border-border/10">
 					<div className="flex items-center gap-3 text-sm ">
 						<Sparkles className="h-4 w-4" aria-hidden="true" />
-						<span>NotebookLM Toolkit · RSS Source Builder</span>
+						<span>NotebookLM Toolkit · Hacker News Source Builder</span>
 					</div>
 					<h1 className="text-balance text-4xl font-semibold leading-tight text-foreground sm:text-5xl">
-						Turn any RSS feed into rich NotebookLM sources in one step.
+						Turn Hacker News front page stories into a NotebookLM source.
 					</h1>
 					<p className="max-w-2xl text-lg">
-						Paste a feed URL, choose how many recent entries to include, and
-						download a ready-to-import zip bundle with clean text, metadata, and
-						article files for NotebookLM.
+						Fetch the latest front page stories from Hacker News and download a
+						ready-to-import zip bundle with clean text, metadata, and article
+						files for NotebookLM.
 					</p>
 				</header>
 
@@ -292,52 +285,23 @@ export default function Home() {
 						<div className="flex flex-col gap-2">
 							<label
 								className="text-sm font-medium text-foreground"
-								htmlFor="feedUrl"
+								htmlFor="storyCount"
 							>
-								RSS feed URL
-							</label>
-							<Input
-								id="feedUrl"
-								name="feedUrl"
-								value={feedUrl}
-								onChange={(event) => setFeedUrl(event.target.value)}
-								required
-								type="url"
-								placeholder="https://example.com/feed"
-								aria-describedby="feedUrl-help"
-							/>
-							<p id="feedUrl-help" className="text-sm">
-								Need inspiration? Try the{" "}
-								<Button
-									type="button"
-									onClick={() => setFeedUrl(SAMPLE_FEED)}
-									variant="link"
-									className="p-0 h-auto"
-								>
-									Hacker News front page feed
-								</Button>{" "}
-								or any site that offers RSS.
-							</p>
-						</div>
-
-						<div className="flex flex-col gap-2">
-							<label className="text-sm font-medium" htmlFor="limit">
-								How many recent entries?
+								How many stories to include?
 							</label>
 							<div className="flex items-center gap-3">
 								<Input
-									id="limit"
-									name="limit"
+									id="storyCount"
+									name="storyCount"
 									type="number"
 									min={1}
 									max={MAX_LIMIT}
-									value={limit}
-									onChange={(event) => setLimit(event.target.value)}
+									value={storyCount}
+									onChange={(event) => setStoryCount(event.target.value)}
 									className="w-28"
 								/>
 								<span className="text-sm">
-									You can include up to {MAX_LIMIT} items at once. Default is
-									15.
+									You can include up to {MAX_LIMIT} stories. Default is 15.
 								</span>
 							</div>
 						</div>
@@ -346,10 +310,10 @@ export default function Home() {
 							<span className="text-sm font-medium">What happens next</span>
 							<ul className="list-disc space-y-1 pl-5 text-sm">
 								<li>
-									Your feed is fetched live and converted into clean text.
+									The top stories from the Hacker News front page are fetched.
 								</li>
 								<li>
-									Each entry becomes both a NotebookLM JSON source and a
+									Each story becomes both a NotebookLM JSON source and a
 									Markdown file.
 								</li>
 								<li>You get a downloadable zip bundle ready for import.</li>
@@ -364,7 +328,7 @@ export default function Home() {
 											className="h-4 w-4 animate-spin"
 											aria-hidden="true"
 										/>
-										Converting…
+										Building…
 									</>
 								) : (
 									<>
@@ -380,7 +344,7 @@ export default function Home() {
 					</fetcher.Form>
 
 					{data ? null : (
-						<WhyNotebookLMSources keepCurrentDescription="Run the converter whenever a feed updates and re-import to keep NotebookLM fresh." />
+						<WhyNotebookLMSources keepCurrentDescription="Run the builder periodically to capture new front page stories and keep your NotebookLM sources updated." />
 					)}
 				</section>
 
@@ -403,14 +367,13 @@ export default function Home() {
 								<div className="grid gap-4 rounded-2xl border border-emerald-400/60 bg-emerald-500/10 p-5 text-emerald-100 sm:grid-cols-2">
 									<div>
 										<p className="text-sm uppercase tracking-wide text-emerald-200">
-											Feed
+											Source
 										</p>
 										<p className="mt-1 text-lg font-semibold text-white">
 											{successPayload.feed.title}
 										</p>
 										<p className="mt-1 text-sm text-emerald-100/80">
-											{successPayload.feed.description ??
-												"No description provided."}
+											{successPayload.feed.description}
 										</p>
 										<a
 											href={successPayload.feed.url}
@@ -418,7 +381,7 @@ export default function Home() {
 											rel="noreferrer"
 											className="mt-2 inline-flex items-center gap-2 text-sm font-medium text-emerald-200 underline decoration-dotted underline-offset-4 transition hover:text-emerald-50"
 										>
-											Visit feed
+											Visit Hacker News
 										</a>
 									</div>
 									<div className="flex flex-col justify-between gap-3 rounded-xl bg-black/40 p-4 text-sm text-emerald-100">
@@ -432,7 +395,7 @@ export default function Home() {
 												{" "}
 												{successPayload.feed.totalEntries}
 											</strong>{" "}
-											entries.
+											stories.
 										</p>
 										{downloadUrl ? (
 											<a
@@ -449,7 +412,7 @@ export default function Home() {
 
 								<div className="space-y-3">
 									<h3 className="text-lg font-semibold text-white">
-										Included entries
+										Included stories
 									</h3>
 									<ul className="space-y-3">
 										{successPayload.entries.map((entry) => (
@@ -492,27 +455,13 @@ export default function Home() {
 						) : (
 							<div className="rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-slate-200">
 								Conversion updates and the download link will appear here after
-								you submit a feed.
+								you start the build.
 							</div>
 						)}
 					</section>
 				) : null}
 			</div>
 		</main>
-	);
-}
-function FeaturePill({
-	icon,
-	children,
-}: {
-	icon: ReactNode;
-	children: ReactNode;
-}) {
-	return (
-		<span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/40 px-3 py-1 text-xs font-medium text-slate-200">
-			{icon}
-			{children}
-		</span>
 	);
 }
 
@@ -617,4 +566,27 @@ function slugify(input: string) {
 }
 function countWords(text: string) {
 	return text.split(/\s+/).filter(Boolean).length;
+}
+
+async function fetchArticleContent(url: string): Promise<string | null> {
+	try {
+		const response = await fetch(url, {
+			headers: {
+				"User-Agent":
+					"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
+			},
+		});
+		if (!response.ok) {
+			console.error(`Failed to fetch article: ${response.statusText}`);
+			return null;
+		}
+		const html = await response.text();
+		const dom = new JSDOM(html, { url });
+		const reader = new Readability(dom.window.document);
+		const article = reader.parse();
+		return article?.textContent ?? null;
+	} catch (error) {
+		console.error("Error fetching or parsing article:", error);
+		return null;
+	}
 }

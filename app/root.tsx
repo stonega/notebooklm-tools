@@ -2,6 +2,7 @@ import {
 	isRouteErrorResponse,
 	Links,
 	Meta,
+	NavLink,
 	Outlet,
 	Scripts,
 	ScrollRestoration,
@@ -9,6 +10,8 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import { ThemeProvider } from "./components/theme-provider";
+import { ThemeSwitch } from "./components/theme-switch";
 
 export const links: Route.LinksFunction = () => [
 	{ rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -42,7 +45,48 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-	return <Outlet />;
+	return (
+		<ThemeProvider defaultTheme="light">
+			<Header />
+			<Outlet />
+		</ThemeProvider>
+	);
+}
+
+function Header() {
+	return (
+		<header className="backdrop-blur-lg sticky top-0 z-50 border-b">
+			<nav className="mx-auto flex max-w-5xl items-center justify-between p-4">
+				<div className="flex items-center gap-4">
+					<NavLink
+						to="/"
+						className={({ isActive }) =>
+							`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+								isActive
+									? "bg-accent text-accent-foreground"
+									: "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+							}`
+						}
+					>
+						RSS
+					</NavLink>
+					<NavLink
+						to="/hackernews"
+						className={({ isActive }) =>
+							`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+								isActive
+									? "bg-accent text-accent-foreground"
+									: "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+							}`
+						}
+					>
+						Hacker News
+					</NavLink>
+				</div>
+				<ThemeSwitch />
+			</nav>
+		</header>
+	);
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
