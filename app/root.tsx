@@ -10,6 +10,7 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import { Github } from "lucide-react";
 import { ThemeProvider } from "./components/theme-provider";
 import { ThemeSwitch } from "./components/theme-switch";
 
@@ -83,7 +84,17 @@ function Header() {
 						Hacker News
 					</NavLink>
 				</div>
-				<ThemeSwitch />
+				<div className="flex items-center gap-4">
+					<a
+						href="https://github.com/stone/notebooklm-tools"
+						target="_blank"
+						rel="noopener noreferrer"
+						className="text-muted-foreground hover:text-foreground"
+					>
+						<Github className="h-5 w-5" />
+					</a>
+					<ThemeSwitch />
+				</div>
 			</nav>
 		</header>
 	);
