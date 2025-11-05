@@ -13,6 +13,7 @@ import "./app.css";
 import { Github } from "lucide-react";
 import { ThemeProvider } from "./components/theme-provider";
 import { ThemeSwitch } from "./components/theme-switch";
+import { Footer } from "./components/footer";
 
 export const links: Route.LinksFunction = () => [
 	{ rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -50,6 +51,7 @@ export default function App() {
 		<ThemeProvider defaultTheme="light">
 			<Header />
 			<Outlet />
+			<Footer />
 		</ThemeProvider>
 	);
 }
