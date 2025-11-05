@@ -14,7 +14,7 @@ const SAMPLE_FEED = "https://hnrss.org/frontpage";
 
 export function meta(_args: Route.MetaArgs) {
 	return [
-		{ title: "RSS → NotebookLM Source Builder" },
+		{ title: "RSS" },
 		{
 			name: "description",
 			content:
@@ -270,7 +270,7 @@ export default function Home() {
 				<header className="flex flex-col gap-6 rounded-sm border border-border/10">
 					<div className="flex items-center gap-3 text-sm ">
 						<Sparkles className="h-4 w-4" aria-hidden="true" />
-						<span>NotebookLM Toolkit · RSS Source Builder</span>
+						<span>NotebookLM Tools · RSS Source Builder</span>
 					</div>
 					<h1 className="text-balance text-4xl font-semibold leading-tight text-foreground sm:text-5xl">
 						Turn any RSS feed into rich NotebookLM sources in one step.

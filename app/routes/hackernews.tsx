@@ -16,7 +16,7 @@ const HACKERNEWS_FEED = "https://hnrss.org/frontpage";
 
 export function meta(_args: Route.MetaArgs) {
 	return [
-		{ title: "Hacker News → NotebookLM Source Builder" },
+		{ title: "Hacker News" },
 		{
 			name: "description",
 			content:
