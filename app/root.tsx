@@ -14,6 +14,10 @@ import { Github } from "lucide-react";
 import { ThemeProvider } from "./components/theme-provider";
 import { ThemeSwitch } from "./components/theme-switch";
 import { Footer } from "./components/footer";
+import {
+	buildMeta,
+	getSiteStructuredData,
+} from "./lib/seo";
 
 export const links: Route.LinksFunction = () => [
 	{ rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -26,9 +30,17 @@ export const links: Route.LinksFunction = () => [
 		rel: "stylesheet",
 		href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
 	},
+	{ rel: "icon", href: "/favicon.ico" },
+	{ rel: "apple-touch-icon", href: "/favicon.ico" },
 ];
 
+export function meta(): Route.MetaDescriptor[] {
+	return buildMeta();
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
+	const siteJsonLd = JSON.stringify(getSiteStructuredData());
+
 	return (
 		<html lang="en">
 			<head>
@@ -36,6 +48,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
 				<Meta />
 				<Links />
+				<script
+					type="application/ld+json"
+					suppressHydrationWarning
+					dangerouslySetInnerHTML={{ __html: siteJsonLd }}
+				/>
 			</head>
 			<body>
 				{children}

@@ -2,27 +2,65 @@ import { Readability } from "@mozilla/readability";
 import { convert } from "html-to-text";
 import { JSDOM } from "jsdom";
 import JSZip from "jszip";
-import { BookOpen, Download, Loader2, Sparkles } from "lucide-react";
+import { Download, Loader2, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import Parser, { type Item, type Output as RssFeed } from "rss-parser";
+import {
+	buildCanonicalLink,
+	buildMeta,
+	getCanonicalUrl,
+	siteConfig,
+} from "../lib/seo";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import type { ActionData, FeedEntry } from "../lib/types";
 import type { Route } from "./+types/hackernews";
 
 const HACKERNEWS_FEED = "https://hnrss.org/frontpage";
+const HACKER_NEWS_PATH = "/hackernews";
+const HACKER_NEWS_DESCRIPTION =
+	"Fetch top Hacker News stories and export them as NotebookLM-ready bundles with readable article content.";
+const HACKER_NEWS_KEYWORDS = [
+	"Hacker News export",
+	"NotebookLM bundle",
+	"Hacker News reader",
+	"NotebookLM tools",
+	"tech news automation",
+];
+const HACKER_NEWS_CANONICAL_URL = getCanonicalUrl(HACKER_NEWS_PATH);
+const HACKER_NEWS_JSON_LD = JSON.stringify({
+	"@context": "https://schema.org",
+	"@type": "SoftwareApplication",
+	name: `${siteConfig.name} – Hacker News Source Builder`,
+	applicationCategory: "ProductivityApplication",
+	operatingSystem: "Web",
+	description: HACKER_NEWS_DESCRIPTION,
+	url: HACKER_NEWS_CANONICAL_URL,
+	sameAs: ["https://news.ycombinator.com"],
+	creator: {
+		"@type": "Person",
+		name: "Stone",
+	},
+	offers: {
+		"@type": "Offer",
+		price: "0",
+		priceCurrency: "USD",
+	},
+});
 
 export function meta(_args: Route.MetaArgs) {
-	return [
-		{ title: "Hacker News" },
-		{
-			name: "description",
-			content:
-				"Transform Hacker News top stories into a ready-to-import NotebookLM source bundle with a single click.",
-		},
-	];
+	return buildMeta({
+		title: "Hacker News Source Builder",
+		description: HACKER_NEWS_DESCRIPTION,
+		path: HACKER_NEWS_PATH,
+		keywords: HACKER_NEWS_KEYWORDS,
+	});
 }
+
+export const links: Route.LinksFunction = () => [
+	buildCanonicalLink(HACKER_NEWS_PATH),
+];
 
 export const MAX_LIMIT = 40;
 
@@ -258,6 +296,11 @@ export default function HackerNews() {
 
 	return (
 		<main className="min-h-screen ">
+			<script
+				type="application/ld+json"
+				suppressHydrationWarning
+				dangerouslySetInnerHTML={{ __html: HACKER_NEWS_JSON_LD }}
+			/>
 			<div className="mx-auto flex w-full max-w-5xl flex-col gap-12 px-4 pb-24 pt-16 sm:px-6 lg:px-8">
 				<header className="flex flex-col gap-6 rounded-sm border border-border/10">
 					<div className="flex items-center gap-3 text-sm ">
