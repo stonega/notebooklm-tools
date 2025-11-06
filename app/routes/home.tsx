@@ -1,26 +1,61 @@
 import { convert } from "html-to-text";
 import JSZip from "jszip";
 import { Download, Loader2, Sparkles } from "lucide-react";
-import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import Parser, { type Item, type Output as RssFeed } from "rss-parser";
+import {
+	buildCanonicalLink,
+	buildMeta,
+	getCanonicalUrl,
+	siteConfig,
+} from "../lib/seo";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import type { ActionData, FeedEntry } from "../lib/types";
 import type { Route } from "./+types/home";
 
 const SAMPLE_FEED = "https://hnrss.org/frontpage";
+const HOME_PATH = "/";
+const HOME_DESCRIPTION =
+	"Convert any RSS feed into a structured NotebookLM source bundle with clean text, metadata, and Markdown exports.";
+const HOME_KEYWORDS = [
+	"RSS feed converter",
+	"NotebookLM source builder",
+	"RSS to NotebookLM",
+	"content bundler",
+	"NotebookLM tools",
+];
+const HOME_CANONICAL_URL = getCanonicalUrl(HOME_PATH);
+const HOME_JSON_LD = JSON.stringify({
+	"@context": "https://schema.org",
+	"@type": "SoftwareApplication",
+	name: `${siteConfig.name} – RSS Source Builder`,
+	applicationCategory: "ProductivityApplication",
+	operatingSystem: "Web",
+	description: HOME_DESCRIPTION,
+	url: HOME_CANONICAL_URL,
+	creator: {
+		"@type": "Person",
+		name: "Stone",
+	},
+	offers: {
+		"@type": "Offer",
+		price: "0",
+		priceCurrency: "USD",
+	},
+});
 
 export function meta(_args: Route.MetaArgs) {
-	return [
-		{ title: "RSS" },
-		{
-			name: "description",
-			content:
-				"Transform any RSS feed into a ready-to-import NotebookLM source bundle with a single click.",
-		},
-	];
+	return buildMeta({
+		title: "RSS Feed Source Builder",
+		description: HOME_DESCRIPTION,
+		path: HOME_PATH,
+		keywords: HOME_KEYWORDS,
+	});
 }
+
+export const links: Route.LinksFunction = () => [buildCanonicalLink(HOME_PATH)];
 
 export const MAX_LIMIT = 40;
 
@@ -265,6 +300,11 @@ export default function Home() {
 
 	return (
 		<main className="min-h-screen ">
+			<script
+				type="application/ld+json"
+				suppressHydrationWarning
+				dangerouslySetInnerHTML={{ __html: HOME_JSON_LD }}
+			/>
 			<div className="mx-auto flex w-full max-w-5xl flex-col gap-12 px-4 pb-24 pt-16 sm:px-6 lg:px-8">
 				<header className="flex flex-col gap-6 rounded-sm border border-border/10">
 					<div className="flex items-center gap-3 text-sm ">

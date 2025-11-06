@@ -49,6 +49,19 @@ bun run dev
 
 Your application will be available at `http://localhost:5173`.
 
+## Configuration
+
+Set the canonical site URL so generated SEO metadata (canonical links, Open Graph tags, JSON-LD) point to the correct domain:
+
+1. Create a `.env` file at the project root if it does not exist yet.
+2. Add the environment variable with your production hostname (no trailing slash):
+
+   ```bash
+   VITE_SITE_URL=https://your-domain.example
+   ```
+
+3. Restart the dev server after updating the value.
+
 ## Building for Production
 
 Create a production-ready build:
