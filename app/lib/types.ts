@@ -36,13 +36,14 @@ export type LLMsTxtLink = {
 };
 
 export type LLMsTxtActionData =
-	| { ok: false; error: string }
+	| { ok: false; error: string; requiresGeneration?: boolean }
 	| {
 			ok: true;
+			source: "llms-full.txt" | "llms.txt" | "generated";
 			site: {
 				url: string;
 				hostname: string;
-				llmsTxtUrl: string;
+				llmsTxtUrl: string | null;
 			};
 			llmsTxt: {
 				title: string;
@@ -60,5 +61,10 @@ export type LLMsTxtActionData =
 				contentBase64: string;
 				fileName: string;
 				wordCount: number;
+			};
+			noFullTxt?: boolean;
+			generated?: {
+				llmsTxt: string;
+				processedCount: number;
 			};
 	  };
