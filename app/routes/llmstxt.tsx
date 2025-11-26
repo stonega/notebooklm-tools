@@ -335,8 +335,8 @@ async function generateLLMsFullTxt(
 export async function action({ request }: Route.ActionArgs) {
 	const formData = await request.formData();
 	const siteUrlRaw = formData.get("siteUrl");
-	const firecrawlApiKey = formData.get("firecrawlApiKey");
-	const openrouterApiKey = formData.get("openrouterApiKey");
+	const firecrawlApiKey = process.env.FIRECRAWL_API_KEY;
+	const openrouterApiKey = process.env.OPENROUTER_API_KEY;
 	const maxUrlsRaw = formData.get("maxUrls");
 
 	if (typeof siteUrlRaw !== "string" || siteUrlRaw.trim().length === 0) {
@@ -544,8 +544,6 @@ export default function LLMsTxt() {
 	const fetcher = useFetcher<LLMsTxtActionData>();
 	const [siteUrl, setSiteUrl] = useState("");
 	const [showApiKeys, setShowApiKeys] = useState(false);
-	const [firecrawlApiKey, setFirecrawlApiKey] = useState("");
-	const [openrouterApiKey, setOpenrouterApiKey] = useState("");
 	const [maxUrls, setMaxUrls] = useState("20");
 	const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
 	const [copied, setCopied] = useState(false);
@@ -606,7 +604,7 @@ export default function LLMsTxt() {
 
 	const actionDescription = useMemo(() => {
 		if (isSubmitting) {
-			if (showApiKeys && firecrawlApiKey && openrouterApiKey) {
+			if (showApiKeys) {
 				return "Generating llms-full.txt using Firecrawl and OpenRouter...";
 			}
 			return "Checking for llms-full.txt...";
@@ -629,14 +627,7 @@ export default function LLMsTxt() {
 			return "We ran into an issue. See the message below.";
 		}
 		return "Enter a docs site URL to fetch llms-full.txt";
-	}, [
-		errorMessage,
-		isSubmitting,
-		successPayload,
-		showApiKeys,
-		firecrawlApiKey,
-		openrouterApiKey,
-	]);
+	}, [errorMessage, isSubmitting, successPayload, showApiKeys]);
 
 	const handleCopyContent = async () => {
 		if (successPayload?.llmsTxt.content) {
@@ -651,6 +642,7 @@ export default function LLMsTxt() {
 			<script
 				type="application/ld+json"
 				suppressHydrationWarning
+				// biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
 				dangerouslySetInnerHTML={{ __html: LLMSTXT_JSON_LD }}
 			/>
 			<div className="mx-auto flex w-full max-w-5xl flex-col gap-12 px-4 pb-24 pt-16 sm:px-6 lg:px-8">
@@ -725,68 +717,6 @@ export default function LLMsTxt() {
 
 							{showApiKeys && (
 								<div className="flex flex-col gap-4 p-4 rounded-lg border border-border/20 bg-muted/30">
-									<p className="text-sm text-muted-foreground">
-										If no llms-full.txt is found, we can generate one using
-										Firecrawl (for scraping) and OpenRouter (for AI
-										descriptions).
-									</p>
-
-									<div className="flex flex-col gap-2">
-										<label
-											className="text-sm font-medium"
-											htmlFor="firecrawlApiKey"
-										>
-											Firecrawl API Key
-										</label>
-										<Input
-											id="firecrawlApiKey"
-											name="firecrawlApiKey"
-											type="password"
-											value={firecrawlApiKey}
-											onChange={(e) => setFirecrawlApiKey(e.target.value)}
-											placeholder="fc-..."
-										/>
-										<p className="text-xs text-muted-foreground">
-											Get your key at{" "}
-											<a
-												href="https://firecrawl.dev"
-												target="_blank"
-												rel="noreferrer"
-												className="underline"
-											>
-												firecrawl.dev
-											</a>
-										</p>
-									</div>
-
-									<div className="flex flex-col gap-2">
-										<label
-											className="text-sm font-medium"
-											htmlFor="openrouterApiKey"
-										>
-											OpenRouter API Key
-										</label>
-										<Input
-											id="openrouterApiKey"
-											name="openrouterApiKey"
-											type="password"
-											value={openrouterApiKey}
-											onChange={(e) => setOpenrouterApiKey(e.target.value)}
-											placeholder="sk-or-..."
-										/>
-										<p className="text-xs text-muted-foreground">
-											Get your key at{" "}
-											<a
-												href="https://openrouter.ai"
-												target="_blank"
-												rel="noreferrer"
-												className="underline"
-											>
-												openrouter.ai
-											</a>
-										</p>
-									</div>
-
 									<div className="flex flex-col gap-2">
 										<label className="text-sm font-medium" htmlFor="maxUrls">
 											Max URLs to process
@@ -824,7 +754,7 @@ export default function LLMsTxt() {
 									if full version not found.
 								</li>
 								<li>
-									If neither found, can generate using Firecrawl + OpenRouter.
+									If neither found, can generate using Firecrawl.
 								</li>
 							</ul>
 						</div>
@@ -837,9 +767,7 @@ export default function LLMsTxt() {
 											className="h-4 w-4 animate-spin"
 											aria-hidden="true"
 										/>
-										{showApiKeys && firecrawlApiKey && openrouterApiKey
-											? "Generating..."
-											: "Fetching..."}
+										{showApiKeys ? "Generating..." : "Fetching..."}
 									</>
 								) : (
 									<>
@@ -858,20 +786,20 @@ export default function LLMsTxt() {
 				{data ? (
 					<section
 						id="fetch-result"
-						className="space-y-6 rounded-3xl border border-white/10 bg-black/40 p-8 text-slate-100 backdrop-blur"
+						className="space-y-6 rounded-md border border-border/10 bg-card p-8 backdrop-blur text-foreground"
 						aria-live="polite"
 					>
-						<h2 className="text-2xl font-semibold text-white">Result</h2>
+						<h2 className="text-2xl font-semibold text-foreground">Result</h2>
 						{errorMessage ? (
-							<div className="rounded-2xl border border-red-400/60 bg-red-500/10 p-5 text-red-200">
+							<div className="rounded-md border border-destructive/10 bg-destructive/10 p-5 text-destructive">
 								<p className="font-medium">
 									{requiresGeneration
 										? "No llms-full.txt found"
 										: "Error fetching content"}
 								</p>
-								<p className="mt-1 text-sm text-red-100">{errorMessage}</p>
+								<p className="mt-1 text-sm text-destructive">{errorMessage}</p>
 								{requiresGeneration && (
-									<p className="mt-3 text-sm text-red-100">
+									<p className="mt-3 text-sm text-destructive">
 										Expand the "API keys for generation" section above to
 										generate content.
 									</p>
@@ -879,24 +807,18 @@ export default function LLMsTxt() {
 							</div>
 						) : successPayload ? (
 							<div className="space-y-5">
-								<div className="grid gap-4 rounded-2xl border border-emerald-400/60 bg-emerald-500/10 p-5 text-emerald-100 sm:grid-cols-2">
+								<div className="grid gap-4 rounded-md border border-primary/20 bg-primary/10 p-5 text-foreground sm:grid-cols-2">
 									<div>
-										<p className="text-sm uppercase tracking-wide text-emerald-200">
-											{"source" in successPayload &&
-											successPayload.source === "generated"
-												? "Generated"
-												: "Source"}
-										</p>
-										<p className="mt-1 text-lg font-semibold text-white">
+										<p className="mt-1 text-lg font-semibold text-foreground">
 											{successPayload.llmsTxt.title}
 										</p>
 										{successPayload.llmsTxt.description && (
-											<p className="mt-1 text-sm text-emerald-100/80">
+											<p className="mt-1 text-sm text-muted-foreground">
 												{successPayload.llmsTxt.description}
 											</p>
 										)}
 										{"source" in successPayload && (
-											<span className="mt-2 inline-block rounded-full bg-emerald-500/30 px-2 py-0.5 text-xs">
+											<span className="mt-2 inline-block rounded-full bg-primary/20 px-2 py-0.5 text-xs text-primary">
 												{successPayload.source === "generated"
 													? "Generated with AI"
 													: successPayload.source}
@@ -907,23 +829,23 @@ export default function LLMsTxt() {
 												href={successPayload.site.llmsTxtUrl}
 												target="_blank"
 												rel="noreferrer"
-												className="mt-2 flex items-center gap-2 text-sm font-medium text-emerald-200 underline decoration-dotted underline-offset-4 transition hover:text-emerald-50"
+												className="mt-2 flex items-center gap-2 text-sm font-medium text-primary underline decoration-dotted underline-offset-4 transition hover:text-primary/80"
 											>
 												<ExternalLink className="h-3 w-3" aria-hidden="true" />
 												View source file
 											</a>
 										)}
 									</div>
-									<div className="flex flex-col justify-between gap-3 rounded-xl bg-black/40 p-4 text-sm text-emerald-100">
+									<div className="flex flex-col justify-between gap-3 rounded-md bg-muted/50 p-4 text-sm text-foreground">
 										<div className="space-y-1">
 											<p>
-												<strong className="text-white">
+												<strong className="text-foreground">
 													{successPayload.llmsTxt.links.length}
 												</strong>{" "}
 												linked documents
 											</p>
 											<p>
-												<strong className="text-white">
+												<strong className="text-foreground">
 													{successPayload.download.wordCount.toLocaleString()}
 												</strong>{" "}
 												total words
@@ -931,7 +853,7 @@ export default function LLMsTxt() {
 											{"generated" in successPayload &&
 												successPayload.generated && (
 													<p>
-														<strong className="text-white">
+														<strong className="text-foreground">
 															{successPayload.generated.processedCount}
 														</strong>{" "}
 														pages processed
@@ -943,7 +865,7 @@ export default function LLMsTxt() {
 												<a
 													href={downloadUrl}
 													download={successPayload.download.fileName}
-													className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-400 px-4 py-2 text-sm font-semibold text-emerald-950 transition hover:bg-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-100"
+													className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
 												>
 													<Download className="h-4 w-4" aria-hidden="true" />
 													Download .txt file
@@ -952,7 +874,7 @@ export default function LLMsTxt() {
 											<button
 												type="button"
 												onClick={handleCopyContent}
-												className="inline-flex items-center justify-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/20"
+												className="inline-flex items-center justify-center gap-2 rounded-lg bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground transition hover:bg-secondary/80"
 											>
 												{copied ? (
 													<Check className="h-4 w-4" aria-hidden="true" />
@@ -967,17 +889,17 @@ export default function LLMsTxt() {
 
 								{successPayload.llmsTxt.links.length > 0 && (
 									<div className="space-y-3">
-										<h3 className="text-lg font-semibold text-white">
+										<h3 className="text-lg font-semibold text-foreground">
 											Linked Documentation
 										</h3>
 										<ul className="space-y-2">
 											{successPayload.llmsTxt.links.map((link, index) => (
 												<li
 													key={`${link.url}-${index}`}
-													className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-3"
+													className="flex items-start gap-3 rounded-xl border border-border bg-muted/50 p-3"
 												>
 													<FileText
-														className="h-4 w-4 mt-0.5 text-slate-400"
+														className="h-4 w-4 mt-0.5 text-primary"
 														aria-hidden="true"
 													/>
 													<div className="flex-1 min-w-0">
@@ -985,12 +907,12 @@ export default function LLMsTxt() {
 															href={link.url}
 															target="_blank"
 															rel="noreferrer"
-															className="text-sm font-medium text-sky-300 hover:text-sky-100 underline decoration-dotted underline-offset-4"
+															className="text-sm font-medium text-primary hover:text-primary/80 underline decoration-dotted underline-offset-4"
 														>
 															{link.title}
 														</a>
 														{link.description && (
-															<p className="text-sm text-slate-400 mt-0.5">
+															<p className="text-sm text-muted-foreground mt-0.5">
 																{link.description}
 															</p>
 														)}
@@ -1002,13 +924,13 @@ export default function LLMsTxt() {
 								)}
 
 								<div className="space-y-3">
-									<h3 className="text-lg font-semibold text-white">
+									<h3 className="text-lg font-semibold text-foreground">
 										Raw Content Preview
 									</h3>
-									<pre className="rounded-xl border border-white/10 bg-black/60 p-4 text-sm text-slate-200 overflow-x-auto whitespace-pre-wrap max-h-96 overflow-y-auto">
+									<pre className="rounded-xl border border-border bg-muted p-4 text-sm text-foreground overflow-x-auto whitespace-pre-wrap max-h-96 overflow-y-auto">
 										{successPayload.llmsTxt.content.slice(0, 5000)}
 										{successPayload.llmsTxt.content.length > 5000 && (
-											<span className="text-slate-500">
+											<span className="text-muted-foreground">
 												{"\n\n"}... (truncated, download for full content)
 											</span>
 										)}

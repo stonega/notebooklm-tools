@@ -31,7 +31,7 @@ export const links: Route.LinksFunction = () => [
 	{ rel: "apple-touch-icon", href: "/favicon.ico" },
 ];
 
-export function meta(): Route.MetaDescriptor[] {
+export function meta() {
 	return buildMeta();
 }
 
@@ -48,6 +48,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				<script
 					type="application/ld+json"
 					suppressHydrationWarning
+					// biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
 					dangerouslySetInnerHTML={{ __html: siteJsonLd }}
 				/>
 			</head>
