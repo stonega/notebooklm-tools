@@ -11,13 +11,10 @@ import {
 import type { Route } from "./+types/root";
 import "./app.css";
 import { Github } from "lucide-react";
+import { Footer } from "./components/footer";
 import { ThemeProvider } from "./components/theme-provider";
 import { ThemeSwitch } from "./components/theme-switch";
-import { Footer } from "./components/footer";
-import {
-	buildMeta,
-	getSiteStructuredData,
-} from "./lib/seo";
+import { buildMeta, getSiteStructuredData } from "./lib/seo";
 
 export const links: Route.LinksFunction = () => [
 	{ rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -101,6 +98,18 @@ function Header() {
 						}
 					>
 						Hacker News
+					</NavLink>
+					<NavLink
+						to="/llmstxt"
+						className={({ isActive }) =>
+							`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+								isActive
+									? "bg-accent text-accent-foreground"
+									: "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+							}`
+						}
+					>
+						LLMs.txt
 					</NavLink>
 				</div>
 				<div className="flex items-center gap-4">
