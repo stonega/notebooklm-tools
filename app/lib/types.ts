@@ -28,3 +28,43 @@ export type FeedEntry = {
 	publishedAt: string | null;
 	textContent: string;
 };
+
+export type LLMsTxtLink = {
+	title: string;
+	url: string;
+	description: string | null;
+};
+
+export type LLMsTxtActionData =
+	| { ok: false; error: string; requiresGeneration?: boolean }
+	| {
+			ok: true;
+			source: "llms-full.txt" | "llms.txt" | "generated";
+			site: {
+				url: string;
+				hostname: string;
+				llmsTxtUrl: string | null;
+			};
+			llmsTxt: {
+				title: string;
+				description: string | null;
+				content: string;
+				links: LLMsTxtLink[];
+			};
+			fetchedLinks: Array<{
+				title: string;
+				url: string;
+				content: string | null;
+				error: string | null;
+			}> | null;
+			download: {
+				contentBase64: string;
+				fileName: string;
+				wordCount: number;
+			};
+			noFullTxt?: boolean;
+			generated?: {
+				llmsTxt: string;
+				processedCount: number;
+			};
+	  };

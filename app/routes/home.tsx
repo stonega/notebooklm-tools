@@ -4,14 +4,14 @@ import { Download, Loader2, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import Parser, { type Item, type Output as RssFeed } from "rss-parser";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
 import {
 	buildCanonicalLink,
 	buildMeta,
 	getCanonicalUrl,
 	siteConfig,
 } from "../lib/seo";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
 import type { ActionData, FeedEntry } from "../lib/types";
 import type { Route } from "./+types/home";
 
@@ -417,7 +417,6 @@ export default function Home() {
 							</span>
 						</div>
 					</fetcher.Form>
-
 				</section>
 
 				{data ? (

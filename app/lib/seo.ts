@@ -55,7 +55,7 @@ export function buildMeta(options: BuildMetaOptions = {}): MetaDescriptor[] {
 	const ogImage =
 		options.ogImage === null
 			? null
-			: options.ogImage ?? siteConfig.defaultOgImage;
+			: (options.ogImage ?? siteConfig.defaultOgImage);
 	const pageType = options.type ?? "website";
 	const robots = options.robots ?? "index,follow";
 	const keywords = (options.keywords ?? siteConfig.keywords)
