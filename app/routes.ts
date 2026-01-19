@@ -4,4 +4,5 @@ export default [
 	index("routes/home.tsx"),
 	route("hackernews", "routes/hackernews.tsx"),
 	route("llmstxt", "routes/llmstxt.tsx"),
+	route("github", "routes/github.tsx"),
 ] satisfies RouteConfig;

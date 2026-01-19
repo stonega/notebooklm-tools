@@ -79,10 +79,9 @@ function Header() {
 					<NavLink
 						to="/"
 						className={({ isActive }) =>
-							`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-								isActive
-									? "bg-accent text-accent-foreground"
-									: "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+							`px-3 py-2 text-sm font-medium rounded-md transition-colors ${isActive
+								? "bg-accent text-accent-foreground"
+								: "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
 							}`
 						}
 					>
@@ -91,10 +90,9 @@ function Header() {
 					<NavLink
 						to="/hackernews"
 						className={({ isActive }) =>
-							`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-								isActive
-									? "bg-accent text-accent-foreground"
-									: "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+							`px-3 py-2 text-sm font-medium rounded-md transition-colors ${isActive
+								? "bg-accent text-accent-foreground"
+								: "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
 							}`
 						}
 					>
@@ -103,14 +101,24 @@ function Header() {
 					<NavLink
 						to="/llmstxt"
 						className={({ isActive }) =>
-							`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-								isActive
-									? "bg-accent text-accent-foreground"
-									: "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+							`px-3 py-2 text-sm font-medium rounded-md transition-colors ${isActive
+								? "bg-accent text-accent-foreground"
+								: "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
 							}`
 						}
 					>
 						LLMs.txt
+					</NavLink>
+					<NavLink
+						to="/github"
+						className={({ isActive }) =>
+							`px-3 py-2 text-sm font-medium rounded-md transition-colors ${isActive
+								? "bg-accent text-accent-foreground"
+								: "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+							}`
+						}
+					>
+						GitHub
 					</NavLink>
 				</div>
 				<div className="flex items-center gap-4">
